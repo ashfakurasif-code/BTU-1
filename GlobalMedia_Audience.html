@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Poll — Global Media & Cultural Flows</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Bebas+Neue&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#03040e;color:#fff;font-family:'Space Grotesk',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
+.header{text-align:center;padding:28px 20px 20px;width:100%;max-width:520px}
+.header .tag{font-size:12px;letter-spacing:.3em;color:rgba(201,168,76,.6);text-transform:uppercase;margin-bottom:10px}
+.header h1{font-family:'Bebas Neue';font-size:clamp(28px,8vw,42px);color:#fff;letter-spacing:.05em;line-height:1}
+.header h2{font-family:'Bebas Neue';font-size:clamp(20px,6vw,30px);color:#C9A84C;letter-spacing:.05em;margin-bottom:8px}
+.header .sub{font-size:13px;color:rgba(255,255,255,.4);font-weight:300}
+
+/* State screens */
+#screen-wait,#screen-quiz,#screen-done{width:100%;max-width:520px;display:none;flex-direction:column;align-items:center}
+#screen-wait{text-align:center;padding:40px 20px}
+#screen-wait .spin{width:60px;height:60px;border:3px solid rgba(201,168,76,.2);border-top-color:#C9A84C;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#screen-wait p{color:rgba(255,255,255,.5);font-size:15px;font-weight:300}
+
+/* Progress bar */
+.progress-bar{width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin:16px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#C9A84C,#2DD4BF);border-radius:2px;transition:width .3s}
+
+/* Question */
+.q-header{width:100%;margin-bottom:18px}
+.q-num{font-size:12px;letter-spacing:.3em;color:rgba(201,168,76,.6);text-transform:uppercase;margin-bottom:6px}
+.q-text{font-size:clamp(16px,4.5vw,20px);font-weight:600;color:#fff;line-height:1.5}
+
+/* Options */
+.options{width:100%;display:flex;flex-direction:column;gap:12px}
+.opt{padding:16px 20px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s;font-size:clamp(14px,4vw,16px);font-weight:400;color:rgba(255,255,255,.85)}
+.opt:hover{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.08)}
+.opt.selected{border-color:#C9A84C;background:rgba(201,168,76,.15);color:#fff}
+.opt.correct{border-color:#2DD4BF;background:rgba(45,212,191,.15);color:#2DD4BF}
+.opt.wrong{border-color:#E05252;background:rgba(224,82,82,.1);color:rgba(255,255,255,.5)}
+.opt-letter{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:16px;flex-shrink:0;transition:all .2s}
+.opt.selected .opt-letter{background:#C9A84C;border-color:#C9A84C;color:#000}
+.opt.correct .opt-letter{background:#2DD4BF;border-color:#2DD4BF;color:#000}
+.opt.wrong .opt-letter{background:#E05252;border-color:#E05252;color:#fff}
+
+/* Submit btn */
+.submit-btn{margin-top:20px;width:100%;padding:16px;border-radius:10px;background:#C9A84C;color:#000;font-family:'Space Grotesk';font-size:16px;font-weight:700;letter-spacing:.08em;border:none;cursor:pointer;transition:all .2s;display:none}
+.submit-btn:hover{background:#E8C97A}
+.submit-btn.show{display:block}
+.submit-btn.loading{opacity:.6;pointer-events:none}
+
+/* Done screen */
+#screen-done{text-align:center;padding:40px 20px}
+.done-icon{font-size:64px;margin-bottom:20px;animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.2)}100%{transform:scale(1)}}
+.done-title{font-family:'Bebas Neue';font-size:36px;color:#C9A84C;letter-spacing:.05em;margin-bottom:10px}
+.done-sub{font-size:15px;color:rgba(255,255,255,.5);font-weight:300;line-height:1.6}
+.score-badge{margin:20px auto;width:100px;height:100px;border-radius:50%;border:3px solid #C9A84C;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(201,168,76,.1)}
+.score-n{font-family:'Bebas Neue';font-size:36px;color:#C9A84C;line-height:1}
+.score-l{font-size:11px;color:rgba(201,168,76,.7);letter-spacing:.1em}
+
+/* Separator */
+.sep{width:100%;height:1px;background:rgba(255,255,255,.07);margin:20px 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tag">Group 6 · BTU Cottbus-Senftenberg</div>
+  <h1>GLOBAL MEDIA</h1>
+  <h2>& CULTURAL FLOWS</h2>
+  <div class="sub">Live audience poll — answer 4 quick questions</div>
+</div>
+
+<!-- Waiting -->
+<div id="screen-wait">
+  <div class="spin"></div>
+  <p>Loading questions...</p>
+</div>
+
+<!-- Quiz -->
+<div id="screen-quiz">
+  <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+  <div style="width:100%;display:flex;justify-content:space-between;margin-bottom:16px">
+    <span id="q-counter" style="font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.1em">QUESTION 1 OF 4</span>
+    <span id="q-pts" style="font-size:12px;color:rgba(201,168,76,.7);letter-spacing:.1em"></span>
+  </div>
+  <div class="q-header">
+    <div class="q-text" id="q-text"></div>
+  </div>
+  <div class="options" id="options"></div>
+  <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">SUBMIT ANSWER</button>
+</div>
+
+<!-- Done -->
+<div id="screen-done">
+  <div class="done-icon">🎉</div>
+  <div class="done-title">You're done!</div>
+  <div class="score-badge"><div class="score-n" id="final-score">0</div><div class="score-l">/ 4</div></div>
+  <div class="done-sub">Thank you for participating!<br>Check the screen to see live results.</div>
+  <div class="sep"></div>
+  <div style="font-size:13px;color:rgba(255,255,255,.3);text-align:center">Culture & Globalisation · Module 37404<br>BTU Cottbus-Senftenberg · 10 June 2026</div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, push, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDBbm1eiqatwEUQenPIEAEFSubTJTUTdZk",
+  authDomain: "joaf-app-45753.firebaseapp.com",
+  databaseURL: "https://joaf-app-45753-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "joaf-app-45753",
+  storageBucket: "joaf-app-45753.firebasestorage.app",
+  messagingSenderId: "472362223214",
+  appId: "1:472362223214:web:9186a4f90dc608bae4487f"
+};
+
+const QUESTIONS = [
+  {
+    q: "Who controls most of the world's media infrastructure?",
+    opts: ["China","USA","European Union","India"],
+    correct: 1
+  },
+  {
+    q: "What does 'hybridity' mean in cultural globalisation?",
+    opts: ["One culture absorbs another completely","Western culture dominates globally","Cultures mix and create new combined forms","Media stays within national borders"],
+    correct: 2
+  },
+  {
+    q: "What did Fitzgerald (2019) study in India?",
+    opts: ["Social media censorship","Over-the-Top (OTT) video platforms like Netflix","Print media decline","Radio broadcasting"],
+    correct: 1
+  },
+  {
+    q: "According to Ponzanesi (2020), digital diasporas mainly...",
+    opts: ["Forget their home culture over time","Avoid social media platforms","Maintain belonging and identity across borders","Only consume Western media"],
+    correct: 2
+  }
+];
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const SESSION = 'poll_' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+
+let curQ = 0, selected = -1, score = 0, userId;
+
+// Generate user ID
+userId = 'user_' + Math.random().toString(36).slice(2,9);
+
+function showScreen(id){
+  ['screen-wait','screen-quiz','screen-done'].forEach(s=>{
+    document.getElementById(s).style.display='none';
+  });
+  document.getElementById(id).style.display='flex';
+}
+
+function loadQuestion(){
+  if(curQ >= QUESTIONS.length){ showResults(); return; }
+  const q = QUESTIONS[curQ];
+  selected = -1;
+  document.getElementById('q-counter').textContent = `QUESTION ${curQ+1} OF ${QUESTIONS.length}`;
+  document.getElementById('prog').style.width = ((curQ)/QUESTIONS.length*100)+'%';
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('submit-btn').className = 'submit-btn';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'opt';
+    div.innerHTML = `<div class="opt-letter">${['A','B','C','D'][i]}</div><span>${opt}</span>`;
+    div.onclick = () => selectOpt(i);
+    opts.appendChild(div);
+  });
+  showScreen('screen-quiz');
+}
+
+function selectOpt(i){
+  selected = i;
+  document.querySelectorAll('.opt').forEach((el,j)=>{
+    el.className = 'opt' + (j===i?' selected':'');
+  });
+  document.getElementById('submit-btn').className = 'submit-btn show';
+}
+
+window.submitAnswer = function(){
+  if(selected < 0) return;
+  const btn = document.getElementById('submit-btn');
+  btn.classList.add('loading');
+  btn.textContent = 'Submitting...';
+
+  const q = QUESTIONS[curQ];
+  const isCorrect = selected === q.correct;
+  if(isCorrect) score++;
+
+  // Reveal correct/wrong
+  document.querySelectorAll('.opt').forEach((el,i)=>{
+    if(i === q.correct) el.classList.add('correct');
+    else if(i === selected && !isCorrect) el.classList.add('wrong');
+  });
+
+  // Push to Firebase
+  const ansRef = ref(db, `${SESSION}/answers/q${curQ}`);
+  push(ansRef, {
+    userId, answer: selected, correct: isCorrect, ts: Date.now()
+  }).then(()=>{
+    setTimeout(()=>{
+      curQ++;
+      loadQuestion();
+    }, 1200);
+  }).catch(()=>{
+    // Offline fallback — still continue
+    setTimeout(()=>{ curQ++; loadQuestion(); }, 1200);
+  });
+};
+
+function showResults(){
+  document.getElementById('prog').style.width = '100%';
+  document.getElementById('final-score').textContent = score;
+  showScreen('screen-done');
+}
+
+// Start
+showScreen('screen-wait');
+setTimeout(loadQuestion, 800);
+</script>
+</body>
+</html>
