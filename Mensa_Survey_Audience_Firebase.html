@@ -65,7 +65,7 @@ footer{text-align:center;margin-top:24px;font-size:10.5px;color:rgba(255,255,255
     <div class="eyebrow"><span class="live-pip"></span>BTU4Future · Module 13710 · Group 2</div>
     <h1>Decolonizing BTU Mensa</h1>
     <div class="sub">A short, anonymous survey on food culture, representation, and sustainability at the BTU Mensa.</div>
-    <div class="scope-chip">📍 Cottbus campus only (Zentralcampus &amp; Sachsendorf)</div>
+    <div class="scope-chip">📍 BTU Cottbus — Students, Staff &amp; anyone connected to the BTU Mensa</div>
   </header>
 
   <div class="progress-wrap">
@@ -92,12 +92,12 @@ const SURVEY_COLLECTION='mensa_survey_responses'; // separate Firestore collecti
 // ---- Question definitions ----
 const Q = [
   { id:'consent', type:'consent' },
-  { id:'origin', type:'single', q:'Are you a Cottbus-campus BTU student?', hint:'This survey is scoped to Cottbus only (Zentralcampus / Sachsendorf Mensa). Senftenberg responses cannot be used.',
-    opts:['Yes, I study/eat at the Cottbus campus','No, I am at Senftenberg or another campus'] },
+  { id:'origin', type:'single', q:'Are you connected to BTU Cottbus (Zentralcampus / Sachsendorf)?', hint:'This survey covers the BTU Cottbus Mensa. Students, staff, researchers, and anyone who eats or works at/with the Cottbus campus are welcome.',
+    opts:['Yes — I am a student, staff, researcher, or otherwise connected to BTU Cottbus','No — I am only at Senftenberg or have no connection to BTU Cottbus'] },
   { id:'background', type:'single', q:'How would you describe your background?',
     opts:['Domestic (Germany)','International — South Asia','International — East/Southeast Asia','International — Middle East','International — Africa','International — Latin America','International — other Europe','Prefer not to say'] },
-  { id:'program', type:'single', q:'What is your level of study?',
-    opts:["Bachelor's","Master's",'PhD','Other / exchange'] },
+  { id:'program', type:'single', q:'What best describes your role at BTU?',
+    opts:["Student — Bachelor's","Student — Master's",'Student — PhD / Doctoral','Staff / Researcher / Academic','Admin / Technical / Service staff','Other / Visiting / Exchange'] },
   { id:'frequency', type:'single', q:'How often do you eat at the BTU Cottbus Mensa?',
     opts:['Daily or almost daily','2–3 times a week','About once a week','Rarely','Never'] },
   { id:'observed_rotation', type:'single', q:'Thinking about the last 2 weeks: when you saw a non-European dish (e.g. South/East Asian, African, Middle Eastern, Latin American) on the Mensa menu, where was it usually placed?', hint:'This helps us check perception against what people actually noticed on the board — answer based on what you remember seeing, not what you assume.',
@@ -141,7 +141,8 @@ function render(){
     div.innerHTML=`
       <b>Before you start</b><br><br>
       This survey is part of an academic group project for the BTU4Future module (13710), examining cultural representation and sustainability at the <b>BTU Cottbus Mensa</b>.<br><br>
-      • Your responses are <b>anonymous</b> — no name, email, or student ID is collected.<br>
+      Open to: <b>BTU Cottbus students, staff, researchers, and anyone connected to BTU or the BTU Mensa</b> (Zentralcampus / Sachsendorf).<br><br>
+      • Your responses are <b>anonymous</b> — no name, email, or ID is collected.<br>
       • Participation is voluntary; you can close this page at any time before submitting.<br>
       • Data will be used only for this course project and may be summarized in our report.<br>
       • Takes about 2–3 minutes.<br><br>
@@ -274,8 +275,8 @@ function showOutOfScope(){
   container.innerHTML = `
     <div class="done-wrap">
       <div class="done-icon">📍</div>
-      <div class="done-title">Cottbus Campus Only</div>
-      <div class="done-sub">This survey is scoped specifically to the BTU Cottbus Mensa (Zentralcampus / Sachsendorf), not Senftenberg. Thank you for your interest — your response was not recorded.</div>
+      <div class="done-title">BTU Cottbus Connection Required</div>
+      <div class="done-sub">This survey covers the BTU Cottbus Mensa specifically. If you have no connection to Cottbus campus, your response unfortunately cannot be included. Thank you for your interest!</div>
     </div>`;
 }
 
