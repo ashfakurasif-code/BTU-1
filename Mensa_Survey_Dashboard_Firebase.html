@@ -2,377 +2,330 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Live Survey Dashboard — Decolonizing BTU Mensa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>BTU Cottbus Mensa Survey — Decolonizing BTU Mensa</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#03040e;color:#fff;font-family:'Space Grotesk',sans-serif}
+html,body{width:100%;min-height:100%;background:#03040e;color:#fff;font-family:'Space Grotesk',sans-serif}
+body{padding-bottom:40px}
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
-#app{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:56px 1fr 38px;grid-template-columns:1fr 300px}
-#topbar{grid-column:1/-1;background:rgba(3,4,14,.92);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 24px;backdrop-filter:blur(16px)}
-.tb-brand{display:flex;align-items:center;gap:14px}
-.live-pip{width:10px;height:10px;border-radius:50%;background:#2DD4BF;animation:pip 1.5s ease infinite;box-shadow:0 0 14px rgba(45,212,191,.7)}
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:0 18px}
+header{padding:28px 0 18px;text-align:center}
+.live-pip{width:9px;height:9px;border-radius:50%;background:#2DD4BF;display:inline-block;animation:pip 1.5s ease infinite;box-shadow:0 0 14px rgba(45,212,191,.7);margin-right:8px;vertical-align:middle}
 @keyframes pip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
-.tb-title{font-family:'Bebas Neue';font-size:21px;letter-spacing:.06em;color:#fff}
-.tb-tag{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.1em}
-.tb-stats{display:flex;gap:24px}
-.tb-stat{text-align:center}
-.tb-n{font-family:'Bebas Neue';font-size:28px;letter-spacing:.05em;line-height:1}
-.tb-l{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
-#main{grid-column:1;padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.section-lbl{font-size:10px;letter-spacing:.2em;color:rgba(201,168,76,.6);text-transform:uppercase;margin:6px 2px 0}
-.qcard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
-.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
-.qcard.c0::before{background:linear-gradient(90deg,#2DD4BF,#06b6d4)}
-.qcard.c1::before{background:linear-gradient(90deg,#C9A84C,#f59e0b)}
-.qcard.c2::before{background:linear-gradient(90deg,#E05252,#f87171)}
-.qcard.c3::before{background:linear-gradient(90deg,#60a5fa,#a78bfa)}
-.qcard-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.qcard-num{font-family:'Bebas Neue';font-size:26px;line-height:1;flex-shrink:0}
-.qcard.c0 .qcard-num{color:#2DD4BF;text-shadow:0 0 20px rgba(45,212,191,.4)}
-.qcard.c1 .qcard-num{color:#C9A84C;text-shadow:0 0 20px rgba(201,168,76,.4)}
-.qcard.c2 .qcard-num{color:#E05252;text-shadow:0 0 20px rgba(224,82,82,.4)}
-.qcard.c3 .qcard-num{color:#60a5fa;text-shadow:0 0 20px rgba(96,165,250,.4)}
-.qcard-q{font-size:clamp(12.5px,1.1vw,14px);font-weight:600;color:rgba(255,255,255,.92);line-height:1.4;flex:1}
-.qcard-votes{font-size:10.5px;letter-spacing:.1em;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);flex-shrink:0;margin-top:2px;white-space:nowrap}
-.opt-list{display:flex;flex-direction:column;gap:7px}
-.opt-row{display:flex;align-items:center;gap:9px}
-.opt-wrap{flex:1;position:relative;height:28px}
-.opt-bg{position:absolute;inset:0;background:rgba(255,255,255,.04);border-radius:6px}
-.opt-fill{position:absolute;top:0;left:0;height:100%;border-radius:6px;transition:width .8s cubic-bezier(.34,1.2,.64,1)}
-.opt-label{position:absolute;inset:0;display:flex;align-items:center;padding:0 10px;font-size:clamp(10.5px,.95vw,11.5px);color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1}
-.opt-pct{font-family:'Bebas Neue';font-size:17px;min-width:40px;text-align:right;flex-shrink:0}
-.opt-cnt{font-size:10.5px;color:rgba(255,255,255,.3);min-width:20px;text-align:right;flex-shrink:0}
-.likert-bar-row{display:flex;align-items:center;gap:8px;margin-top:4px}
-.likert-avg-big{font-family:'Bebas Neue';font-size:38px;color:#C9A84C;text-shadow:0 0 20px rgba(201,168,76,.4);line-height:1}
-.likert-avg-lbl{font-size:9.5px;color:rgba(255,255,255,.3);letter-spacing:.1em;margin-top:2px}
-.likert-dist{flex:1;display:flex;gap:4px;align-items:flex-end;height:50px}
-.likert-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
-.likert-col-bar{width:100%;background:linear-gradient(180deg,#2DD4BF,#06b6d4);border-radius:4px 4px 0 0;min-height:2px;transition:height .6s}
-.likert-col-n{font-size:9px;color:rgba(255,255,255,.35)}
-#sidebar{grid-column:2;border-left:1px solid rgba(255,255,255,.06);padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;background:rgba(3,4,14,.4)}
-.panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:13px}
-.panel-hed{font-size:10px;letter-spacing:.24em;color:rgba(201,168,76,.65);text-transform:uppercase;margin-bottom:10px}
-#qr-box{width:160px;height:160px;background:#fff;border-radius:9px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:5px}
-.scan-txt{font-size:13px;font-weight:600;color:rgba(255,255,255,.7);text-align:center}
-.target-bar-wrap{margin-top:10px}
-.target-bar-w{height:18px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;position:relative}
-.target-bar-f{height:100%;border-radius:5px;background:linear-gradient(90deg,#2DD4BF,#C9A84C);transition:width .6s}
-.target-lbl{font-size:10px;color:rgba(255,255,255,.4);margin-top:6px;text-align:center}
-.demo-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
-.demo-lbl{font-size:10.5px;color:rgba(255,255,255,.5);min-width:84px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.demo-bar-w{flex:1;height:14px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}
-.demo-bar-f{height:100%;border-radius:4px;background:linear-gradient(90deg,#60a5fa,#a78bfa);transition:width .6s}
-.demo-n{font-family:'Bebas Neue';font-size:13px;color:#60a5fa;min-width:16px;text-align:right}
-.feed-panel{flex:1;min-height:0;display:flex;flex-direction:column}
-.feed-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;min-height:80px}
-.feed-item{font-size:10.5px;color:rgba(255,255,255,.55);padding:6px 8px;background:rgba(255,255,255,.03);border-radius:5px;border-left:2px solid #C9A84C;animation:slideIn .3s ease;flex-shrink:0;line-height:1.4}
-@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.feed-empty{font-size:11px;color:rgba(255,255,255,.2);text-align:center;margin-top:12px}
-#botbar{grid-column:1/-1;background:rgba(3,4,14,.92);border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:11px;color:rgba(255,255,255,.22);letter-spacing:.08em}
-.export-btn{padding:4px 12px;background:rgba(45,212,191,.12);color:#2DD4BF;border:1px solid rgba(45,212,191,.25);border-radius:5px;font-family:'Space Grotesk';font-size:11px;font-weight:600;cursor:pointer}
-.export-btn:hover{background:rgba(45,212,191,.22)}
-.conn-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px}
-.conn-dot.live{background:#2DD4BF;box-shadow:0 0 8px rgba(45,212,191,.7)}
-.conn-dot.down{background:#E05252;box-shadow:0 0 8px rgba(224,82,82,.7)}
+.eyebrow{font-size:11px;letter-spacing:.22em;color:rgba(201,168,76,.75);text-transform:uppercase}
+h1{font-family:'Bebas Neue';font-size:30px;letter-spacing:.04em;margin-top:8px;line-height:1.15}
+.sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:8px;line-height:1.5}
+.scope-chip{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 14px;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25);border-radius:20px;font-size:11px;color:#2DD4BF;letter-spacing:.06em}
+.progress-wrap{position:sticky;top:0;z-index:5;padding:10px 0;background:rgba(3,4,14,.85);backdrop-filter:blur(12px)}
+.progress-bar{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#2DD4BF,#C9A84C);width:0%;transition:width .4s ease;border-radius:4px}
+.progress-txt{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.1em;margin-top:6px;text-align:right}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin:14px 0}
+.qnum{font-family:'Bebas Neue';font-size:13px;color:#C9A84C;letter-spacing:.1em;margin-bottom:6px}
+.qtext{font-size:15.5px;font-weight:600;line-height:1.45;color:rgba(255,255,255,.95)}
+.qhint{font-size:11.5px;color:rgba(255,255,255,.4);margin-top:6px;line-height:1.4}
+.opts{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.opt-btn{display:flex;align-items:center;gap:10px;padding:13px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;font-size:14px;color:rgba(255,255,255,.85);transition:all .15s;text-align:left}
+.opt-btn:active{transform:scale(.98)}
+.opt-btn.sel{background:rgba(45,212,191,.14);border-color:#2DD4BF;color:#fff}
+.opt-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#03040e}
+.opt-btn.sel .opt-dot{border-color:#2DD4BF;background:#2DD4BF}
+.opt-dot.sq{border-radius:5px}
+.likert-row{display:flex;gap:6px;margin-top:16px}
+.likert-btn{flex:1;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;font-family:'Bebas Neue';font-size:18px;color:rgba(255,255,255,.7);transition:all .15s}
+.likert-btn.sel{background:rgba(201,168,76,.18);border-color:#C9A84C;color:#C9A84C}
+.likert-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:9.5px;color:rgba(255,255,255,.35);letter-spacing:.04em}
+textarea{width:100%;margin-top:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;color:#fff;font-family:inherit;font-size:13.5px;resize:vertical;min-height:80px}
+textarea::placeholder{color:rgba(255,255,255,.25)}
+textarea:focus{outline:none;border-color:#2DD4BF}
+.nav-row{display:flex;gap:10px;margin-top:10px;padding:0 0 4px}
+.nav-btn{flex:1;padding:14px;border-radius:12px;font-family:'Space Grotesk';font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.nav-btn.next{background:linear-gradient(90deg,#2DD4BF,#06b6d4);color:#03040e}
+.nav-btn.next:disabled{opacity:.3;pointer-events:none}
+.nav-btn.back{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);flex:0 0 90px}
+.nav-btn:active{transform:scale(.97)}
+.consent-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin:14px 0;font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.6}
+.consent-box b{color:rgba(255,255,255,.9)}
+.consent-check{display:flex;align-items:flex-start;gap:10px;margin-top:14px;cursor:pointer}
+.consent-check input{margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:#2DD4BF}
+.consent-check span{font-size:12.5px;color:rgba(255,255,255,.75);line-height:1.5}
+.done-wrap{text-align:center;padding:50px 20px}
+.done-icon{font-size:48px}
+.done-title{font-family:'Bebas Neue';font-size:26px;letter-spacing:.04em;margin-top:14px}
+.done-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.6}
+footer{text-align:center;margin-top:24px;font-size:10.5px;color:rgba(255,255,255,.2);letter-spacing:.06em;padding-bottom:20px}
 </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
-<div id="app">
-  <div id="topbar">
-    <div class="tb-brand">
-      <div class="live-pip"></div>
-      <div>
-        <div class="tb-title">LIVE SURVEY — DECOLONIZING BTU MENSA</div>
-        <div class="tb-tag">Group 2 · BTU4Future 13710 · Cottbus Campus Only</div>
-      </div>
-    </div>
-    <div class="tb-stats">
-      <div class="tb-stat"><div class="tb-n" id="cnt-r" style="color:#2DD4BF">0</div><div class="tb-l">Responses</div></div>
-      <div class="tb-stat"><div class="tb-n" id="cnt-target" style="color:#C9A84C">0%</div><div class="tb-l">of 500 Target</div></div>
-      <div class="tb-stat"><div class="tb-n" id="cnt-avgsat" style="color:#a78bfa">—</div><div class="tb-l">Avg. Satisfaction</div></div>
-    </div>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="live-pip"></span>BTU4Future · Module 13710 · Group 2</div>
+    <h1>Decolonizing BTU Mensa</h1>
+    <div class="sub">A short, anonymous survey on food culture, representation, and sustainability at the BTU Mensa.</div>
+    <div class="scope-chip">📍 BTU Cottbus — Students, Staff &amp; anyone connected to the BTU Mensa</div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptext">Step 1 of 16</div>
   </div>
-  <div id="main">
-    <div class="section-lbl">Satisfaction & Representation (1–5 scale)</div>
-    <div id="likert-cards"></div>
-    <div class="section-lbl">Single-Choice Responses</div>
-    <div id="choice-cards"></div>
-    <div class="section-lbl">Sustainability Priorities (Top-3 Picks per Respondent)</div>
-    <div id="sustain-card"></div>
-  </div>
-  <div id="sidebar">
-    <div class="panel">
-      <div class="panel-hed">📱 Scan to Take Survey</div>
-      <div id="qr-box"></div>
-      <div class="scan-txt">Cottbus students only</div>
-      <div class="target-bar-wrap">
-        <div class="target-bar-w"><div class="target-bar-f" id="target-fill" style="width:0%"></div></div>
-        <div class="target-lbl" id="target-txt">0 / 500 responses</div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-hed">Respondent Background</div>
-      <div id="demo-rows"></div>
-    </div>
-    <div class="panel feed-panel">
-      <div class="panel-hed" style="margin-bottom:8px">⚡ Live Submissions</div>
-      <div class="feed-list" id="feed-list"><div class="feed-empty">Waiting for responses...</div></div>
-    </div>
-  </div>
-  <div id="botbar">
-    <span><span class="conn-dot live" id="conn-dot"></span><span id="conn-txt">Live via Firestore onSnapshot</span></span>
-    <span id="last-upd">—</span>
-    <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
-  </div>
+
+  <div id="qcontainer"></div>
+
+  <footer>Anonymous · No personal data stored · Group 2, BTU4Future 2026</footer>
 </div>
 
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getFirestore,collection,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import{getFirestore,collection,addDoc,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ---- Firebase config (same JOAF project as your reference dashboard) ----
 const FC={apiKey:"AIzaSyDBbm1eiqatwEUQenPIEAEFSubTJTUTdZk",authDomain:"joaf-app-45753.firebaseapp.com",databaseURL:"https://joaf-app-45753-default-rtdb.europe-west1.firebasedatabase.app",projectId:"joaf-app-45753",storageBucket:"joaf-app-45753.firebasestorage.app",messagingSenderId:"472362223214",appId:"1:472362223214:web:9186a4f90dc608bae4487f"};
 
 const app=initializeApp(FC);
 const db=getFirestore(app);
-const SURVEY_COLLECTION='mensa_survey_responses';
-const TARGET = 500;
-const AURL = 'https://ashfakurasif-code.github.io/BTU-1/Mensa_Survey_Audience_Firebase.html';
+const SURVEY_COLLECTION='mensa_survey_responses'; // separate Firestore collection — does not touch your existing poll data
 
-// ---- Likert questions to visualize ----
-const LIKERT_Q = [
-  { id:'sat_overall', label:'Overall satisfaction with Mensa food', color:0 },
-  { id:'sat_represent', label:'"Menu represents people like me"', color:1 },
-  { id:'sat_variety', label:'"Enough non-European variety daily"', color:2 },
-  { id:'sat_belonging', label:'"Eating here makes me feel I belong"', color:3 },
-];
-const QC=[['#2DD4BF','rgba(45,212,191,'],['#C9A84C','rgba(201,168,76,'],['#E05252','rgba(224,82,82,'],['#60a5fa','rgba(96,165,250,']];
-
-// ---- Choice questions to visualize ----
-const CHOICE_Q = [
-  { id:'observed_rotation', label:'Where did you actually see non-European dishes? (last 2 weeks)', color:0,
-    opts:['Part of the regular daily/weekly lineup (Essen 1–4)','Only as a "Spezial" or "Premium" item',"I didn't notice any non-European dish in the last 2 weeks","I haven't eaten there in the last 2 weeks"] },
-  { id:'pricing_perception', label:'Are non-European dishes priced differently?', color:1,
-    opts:['Yes, they tend to cost more (e.g. Spezial/Premium tier)','Yes, they tend to cost less','No noticeable difference',"I haven\'t noticed / not sure"] },
-  { id:'sustain_origin_link', label:'Does sustainability messaging reflect non-European food traditions?', color:2,
-    opts:['Yes, clearly reflects non-European sustainable food traditions too','Somewhat, but mostly framed around European staples','No, it\'s framed almost entirely around European ingredients/practices',"I\'m not familiar enough with the Mensa\'s sustainability messaging to say"] },
-  { id:'feedback_awareness', label:'Awareness of the official Mensa feedback email', color:3,
-    opts:['Yes, and I have used it before','Yes, but I have never used it',"No, I didn't know this existed",'Not sure'] },
-  { id:'frequency', label:'How often do you eat at BTU Cottbus Mensa?', color:0,
+// ---- Question definitions ----
+const Q = [
+  { id:'consent', type:'consent' },
+  { id:'origin', type:'single', q:'Are you connected to BTU Cottbus (Zentralcampus / Sachsendorf)?', hint:'This survey covers the BTU Cottbus Mensa. Students, staff, researchers, and anyone who eats or works at/with the Cottbus campus are welcome.',
+    opts:['Yes — I am a student, staff, researcher, or otherwise connected to BTU Cottbus','No — I am only at Senftenberg or have no connection to BTU Cottbus'] },
+  { id:'background', type:'single', q:'How would you describe your background?',
+    opts:['Domestic (Germany)','International — South Asia','International — East/Southeast Asia','International — Middle East','International — Africa','International — Latin America','International — other Europe','Prefer not to say'] },
+  { id:'program', type:'single', q:'What best describes your role at BTU?',
+    opts:["Student — Bachelor's","Student — Master's",'Student — PhD / Doctoral','Staff / Researcher / Academic','Admin / Technical / Service staff','Other / Visiting / Exchange'] },
+  { id:'frequency', type:'single', q:'How often do you eat at the BTU Cottbus Mensa?',
     opts:['Daily or almost daily','2–3 times a week','About once a week','Rarely','Never'] },
-  { id:'program', label:'Level of study', color:1,
-    opts:["Bachelor's","Master's","PhD","Other / exchange"] },
+  { id:'observed_rotation', type:'single', q:'Thinking about the last 2 weeks: when you saw a non-European dish (e.g. South/East Asian, African, Middle Eastern, Latin American) on the Mensa menu, where was it usually placed?', hint:'This helps us check perception against what people actually noticed on the board — answer based on what you remember seeing, not what you assume.',
+    opts:['Part of the regular daily/weekly lineup (Essen 1–4)','Only as a "Spezial" or "Premium" item','I didn\'t notice any non-European dish in the last 2 weeks','I haven\'t eaten there in the last 2 weeks'] },
+  { id:'sat_overall', type:'likert', q:'Overall, how satisfied are you with the Mensa\'s food offerings?', low:'Not satisfied', high:'Very satisfied' },
+  { id:'sat_represent', type:'likert', q:'The Mensa\'s menu feels like it represents people like me.', low:'Strongly disagree', high:'Strongly agree' },
+  { id:'sat_variety', type:'likert', q:'There is enough variety of cuisines from outside Europe in the regular (non-special) menu.', low:'Strongly disagree', high:'Strongly agree' },
+  { id:'sat_belonging', type:'likert', q:'Eating at the Mensa makes me feel like I belong on campus.', low:'Strongly disagree', high:'Strongly agree' },
+  { id:'sustain_understanding', type:'rank3', q:'When you think of "sustainable eating," which THREE of these matter most to you?', hint:'Pick exactly your top 3 — this forces real priorities instead of checking everything.',
+    opts:['Organic ingredients','Vegan/vegetarian options','Seasonal/regional produce','Low food waste / using whole ingredients','Traditional or ancestral cooking practices from my culture','Low-carbon transport of ingredients','Fair trade / ethical sourcing','I don\'t really think about this'] },
+  { id:'sustain_origin_link', type:'single', q:'Do you think the Mensa\'s sustainability messaging (organic, regional, "Klimaessen") reflects food traditions from outside Europe?', hint:'This is the core question linking sustainability framing to cultural representation.',
+    opts:['Yes, clearly reflects non-European sustainable food traditions too','Somewhat, but mostly framed around European staples','No, it\'s framed almost entirely around European ingredients/practices','I\'m not familiar enough with the Mensa\'s sustainability messaging to say'] },
+  { id:'pricing_perception', type:'single', q:'Do you think culturally diverse (non-European) dishes are priced differently than standard dishes at the Mensa?',
+    opts:['Yes, they tend to cost more (e.g. Spezial/Premium tier)','Yes, they tend to cost less','No noticeable difference','I haven\'t noticed / not sure'] },
+  { id:'feedback_awareness', type:'single', q:'Did you know the Mensa has an official feedback email (verpflegung@swobb.de) for comments on food and menu?', hint:'This tells us whether existing feedback channels are actually visible to students.',
+    opts:['Yes, and I have used it before','Yes, but I have never used it','No, I didn\'t know this existed','Not sure'] },
+  { id:'missing_cuisine', type:'text', q:'Is there a specific dish or cuisine you wish the Mensa offered regularly?', hint:'Optional — be as specific as you like.', placeholder:'e.g. a proper dal/lentil dish, jollof rice, regional Bangladeshi curry...' },
+  { id:'open_feedback', type:'text', q:'Anything else you want to share about food, culture, and belonging at the Mensa?', hint:'Optional.', placeholder:'Your thoughts...' },
 ];
 
-// Sustainability priorities — now top-3 picks per respondent, counted as selection frequency
-const SUSTAIN_OPTS = ['Organic ingredients','Vegan/vegetarian options','Seasonal/regional produce','Low food waste / using whole ingredients','Traditional or ancestral cooking practices from my culture','Low-carbon transport of ingredients','Fair trade / ethical sourcing',"I don't really think about this"];
+let idx = 0;
+let answers = {};
+const container = document.getElementById('qcontainer');
+const pfill = document.getElementById('pfill');
+const ptext = document.getElementById('ptext');
 
-let allDocs = [];
-
-function buildLikertCards(){
-  const wrap=document.getElementById('likert-cards');
-  wrap.innerHTML = LIKERT_Q.map((q)=>`
-    <div class="qcard c${q.color}" style="margin-bottom:12px">
-      <div class="qcard-header">
-        <div class="qcard-q">${q.label}</div>
-        <div class="qcard-votes" id="lv-${q.id}">0 responses</div>
-      </div>
-      <div class="likert-bar-row">
-        <div>
-          <div class="likert-avg-big" id="lavg-${q.id}">—</div>
-          <div class="likert-avg-lbl">AVG / 5</div>
-        </div>
-        <div class="likert-dist" id="ldist-${q.id}">
-          ${[1,2,3,4,5].map(n=>`
-            <div class="likert-col">
-              <div class="likert-col-bar" id="lbar-${q.id}-${n}" style="height:2px"></div>
-              <div class="likert-col-n" id="lcnt-${q.id}-${n}">0</div>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function buildChoiceCards(){
-  const wrap=document.getElementById('choice-cards');
-  wrap.innerHTML = CHOICE_Q.map((q)=>`
-    <div class="qcard c${q.color}" style="margin-bottom:12px">
-      <div class="qcard-header">
-        <div class="qcard-q">${q.label}</div>
-        <div class="qcard-votes" id="cv-${q.id}">0 responses</div>
-      </div>
-      <div class="opt-list">
-        ${q.opts.map((o,oi)=>`
-          <div class="opt-row">
-            <div class="opt-wrap">
-              <div class="opt-bg"></div>
-              <div class="opt-fill" id="cf-${q.id}-${oi}" style="width:0%;background:${QC[q.color][1]}0.35)"></div>
-              <div class="opt-label">${o}</div>
-            </div>
-            <div class="opt-pct" id="cp-${q.id}-${oi}" style="color:${QC[q.color][0]}">0%</div>
-            <div class="opt-cnt" id="cc-${q.id}-${oi}">0</div>
-          </div>`).join('')}
-      </div>
-    </div>
-  `).join('');
-}
-
-function buildSustainCard(){
-  const wrap=document.getElementById('sustain-card');
-  wrap.innerHTML = `
-    <div class="qcard c1" style="margin-bottom:12px">
-      <div class="qcard-header">
-        <div class="qcard-q">Each respondent picked exactly 3 — bars show how often each item was chosen</div>
-        <div class="qcard-votes" id="sv-count">0 respondents</div>
-      </div>
-      <div class="opt-list">
-        ${SUSTAIN_OPTS.map((o,oi)=>`
-          <div class="opt-row">
-            <div class="opt-wrap">
-              <div class="opt-bg"></div>
-              <div class="opt-fill" id="sf-${oi}" style="width:0%;background:${QC[1][1]}0.35)"></div>
-              <div class="opt-label">${o}</div>
-            </div>
-            <div class="opt-pct" id="sp-${oi}" style="color:${QC[1][0]}">0%</div>
-            <div class="opt-cnt" id="sc-${oi}">0</div>
-          </div>`).join('')}
-      </div>
-    </div>
-  `;
+function updateProgress(){
+  const total = Q.length;
+  pfill.style.width = ((idx)/(total-1)*100)+'%';
+  ptext.textContent = `Step ${idx+1} of ${total}`;
 }
 
 function render(){
-  const total = allDocs.length;
-  document.getElementById('cnt-r').textContent = total;
-  document.getElementById('cnt-target').textContent = Math.min(100, Math.round(total/TARGET*100))+'%';
-  document.getElementById('target-fill').style.width = Math.min(100, total/TARGET*100)+'%';
-  document.getElementById('target-txt').textContent = `${total} / ${TARGET} responses`;
+  updateProgress();
+  container.innerHTML='';
+  const q = Q[idx];
 
-  // Likert
-  let allSatVals=[];
-  LIKERT_Q.forEach(q=>{
-    const vals = allDocs.map(d=>d[q.id]).filter(v=>typeof v==='number');
-    document.getElementById(`lv-${q.id}`).textContent = `${vals.length} response${vals.length!==1?'s':''}`;
-    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
-    document.getElementById(`lavg-${q.id}`).textContent = vals.length ? avg.toFixed(1) : '—';
-    if(q.id==='sat_overall') allSatVals = vals;
-    const dist = [1,2,3,4,5].map(n=>vals.filter(v=>v===n).length);
-    const max = Math.max(...dist,1);
-    dist.forEach((cnt,i)=>{
-      const n=i+1;
-      const h = cnt>0 ? Math.max(4, (cnt/max)*48) : 2;
-      document.getElementById(`lbar-${q.id}-${n}`).style.height = h+'px';
-      document.getElementById(`lcnt-${q.id}-${n}`).textContent = cnt;
+  if(q.type==='consent'){
+    const div=document.createElement('div');
+    div.className='consent-box';
+    div.innerHTML=`
+      <b>Before you start</b><br><br>
+      This survey is part of an academic group project for the BTU4Future module (13710), examining cultural representation and sustainability at the <b>BTU Cottbus Mensa</b>.<br><br>
+      Open to: <b>BTU Cottbus students, staff, researchers, and anyone connected to BTU or the BTU Mensa</b> (Zentralcampus / Sachsendorf).<br><br>
+      • Your responses are <b>anonymous</b> — no name, email, or ID is collected.<br>
+      • Participation is voluntary; you can close this page at any time before submitting.<br>
+      • Data will be used only for this course project and may be summarized in our report.<br>
+      • Takes about 2–3 minutes.<br><br>
+      <label class="consent-check">
+        <input type="checkbox" id="consentCheck">
+        <span>I am 18+ and voluntarily agree to participate in this anonymous survey.</span>
+      </label>
+    `;
+    container.appendChild(div);
+    const navRow=document.createElement('div');
+    navRow.className='nav-row';
+    navRow.innerHTML=`<button class="nav-btn next" id="nextBtn" disabled>Start Survey →</button>`;
+    container.appendChild(navRow);
+    document.getElementById('consentCheck').addEventListener('change',e=>{
+      document.getElementById('nextBtn').disabled=!e.target.checked;
     });
-  });
-  document.getElementById('cnt-avgsat').textContent = allSatVals.length ? (allSatVals.reduce((a,b)=>a+b,0)/allSatVals.length).toFixed(1) : '—';
+    document.getElementById('nextBtn').addEventListener('click',()=>{ idx++; render(); });
+    return;
+  }
 
-  // Choice
-  CHOICE_Q.forEach(q=>{
-    const vals = allDocs.map(d=>d[q.id]).filter(Boolean);
-    document.getElementById(`cv-${q.id}`).textContent = `${vals.length} response${vals.length!==1?'s':''}`;
-    q.opts.forEach((opt,oi)=>{
-      const cnt = vals.filter(v=>v===opt).length;
-      const pct = vals.length ? Math.round(cnt/vals.length*100) : 0;
-      document.getElementById(`cf-${q.id}-${oi}`).style.width = pct+'%';
-      document.getElementById(`cp-${q.id}-${oi}`).textContent = pct+'%';
-      document.getElementById(`cc-${q.id}-${oi}`).textContent = cnt;
+  const card=document.createElement('div');
+  card.className='card';
+  let inner = `<div class="qnum">QUESTION ${idx}</div><div class="qtext">${q.q}</div>`;
+  if(q.hint) inner += `<div class="qhint">${q.hint}</div>`;
+
+  if(q.type==='single'){
+    inner += `<div class="opts">`+q.opts.map((o,i)=>`
+      <div class="opt-btn ${answers[q.id]===i?'sel':''}" data-i="${i}">
+        <div class="opt-dot"></div><div>${o}</div>
+      </div>`).join('')+`</div>`;
+  } else if(q.type==='multi'){
+    inner += `<div class="opts">`+q.opts.map((o,i)=>`
+      <div class="opt-btn ${(answers[q.id]||[]).includes(i)?'sel':''}" data-i="${i}">
+        <div class="opt-dot sq"></div><div>${o}</div>
+      </div>`).join('')+`</div>`;
+  } else if(q.type==='rank3'){
+    const sel = answers[q.id]||[];
+    inner += `<div class="qhint" style="margin-top:10px">Selected: ${sel.length} / 3</div><div class="opts">`+q.opts.map((o,i)=>{
+      const pos = sel.indexOf(i);
+      return `
+      <div class="opt-btn ${pos>-1?'sel':''}" data-i="${i}">
+        <div class="opt-dot">${pos>-1?(pos+1):''}</div><div>${o}</div>
+      </div>`;
+    }).join('')+`</div>`;
+  } else if(q.type==='likert'){
+    inner += `<div class="likert-row">`+[1,2,3,4,5].map(n=>`
+      <div class="likert-btn ${answers[q.id]===n?'sel':''}" data-n="${n}">${n}</div>`).join('')+`</div>
+      <div class="likert-labels"><span>${q.low}</span><span>${q.high}</span></div>`;
+  } else if(q.type==='text'){
+    inner += `<textarea id="txtInput" placeholder="${q.placeholder||''}">${answers[q.id]||''}</textarea>`;
+  }
+  card.innerHTML=inner;
+  container.appendChild(card);
+
+  // nav
+  const navRow=document.createElement('div');
+  navRow.className='nav-row';
+  const isLast = idx===Q.length-1;
+  navRow.innerHTML = `
+    ${idx>1?'<button class="nav-btn back" id="backBtn">← Back</button>':''}
+    <button class="nav-btn next" id="nextBtn" ${needsAnswer(q)?'disabled':''}>${isLast?'Submit ✓':'Next →'}</button>
+  `;
+  container.appendChild(navRow);
+
+  // wire interactions
+  if(q.type==='single'){
+    card.querySelectorAll('.opt-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        answers[q.id]=Number(btn.dataset.i);
+        render();
+      });
     });
+  } else if(q.type==='multi'){
+    card.querySelectorAll('.opt-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=Number(btn.dataset.i);
+        if(!answers[q.id]) answers[q.id]=[];
+        const pos=answers[q.id].indexOf(i);
+        if(pos>-1) answers[q.id].splice(pos,1); else answers[q.id].push(i);
+        render();
+      });
+    });
+  } else if(q.type==='rank3'){
+    card.querySelectorAll('.opt-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const i=Number(btn.dataset.i);
+        if(!answers[q.id]) answers[q.id]=[];
+        const pos=answers[q.id].indexOf(i);
+        if(pos>-1){
+          answers[q.id].splice(pos,1);
+        } else if(answers[q.id].length<3){
+          answers[q.id].push(i);
+        }
+        render();
+      });
+    });
+  } else if(q.type==='likert'){
+    card.querySelectorAll('.likert-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        answers[q.id]=Number(btn.dataset.n);
+        render();
+      });
+    });
+  } else if(q.type==='text'){
+    document.getElementById('txtInput').addEventListener('input',e=>{
+      answers[q.id]=e.target.value;
+    });
+  }
+
+  if(document.getElementById('backBtn')){
+    document.getElementById('backBtn').addEventListener('click',()=>{ idx--; render(); });
+  }
+  document.getElementById('nextBtn').addEventListener('click',async ()=>{
+    if(q.type==='single' && q.id==='origin' && answers[q.id]===1){
+      showOutOfScope(); return;
+    }
+    if(isLast){ await submitSurvey(); return; }
+    idx++; render();
   });
-
-  // Sustainability priorities (top-3 picks per respondent — count = how many times picked, % = share of respondents who picked it)
-  const sustainArrays = allDocs.map(d=>Array.isArray(d.sustain_understanding)?d.sustain_understanding:[]).filter(a=>a.length);
-  document.getElementById('sv-count').textContent = `${sustainArrays.length} respondent${sustainArrays.length!==1?'s':''}`;
-  SUSTAIN_OPTS.forEach((opt,oi)=>{
-    const cnt = sustainArrays.filter(arr=>arr.includes(opt)).length;
-    const pct = sustainArrays.length ? Math.round(cnt/sustainArrays.length*100) : 0;
-    document.getElementById(`sf-${oi}`).style.width = pct+'%';
-    document.getElementById(`sp-${oi}`).textContent = pct+'%';
-    document.getElementById(`sc-${oi}`).textContent = cnt;
-  });
-
-  // Demographics (background)
-  const bgCounts = {};
-  allDocs.forEach(d=>{ if(d.background) bgCounts[d.background]=(bgCounts[d.background]||0)+1; });
-  const demoWrap = document.getElementById('demo-rows');
-  const sorted = Object.entries(bgCounts).sort((a,b)=>b[1]-a[1]);
-  const maxBg = Math.max(...sorted.map(s=>s[1]),1);
-  demoWrap.innerHTML = sorted.length ? sorted.map(([label,cnt])=>`
-    <div class="demo-row">
-      <div class="demo-lbl" title="${label}">${label}</div>
-      <div class="demo-bar-w"><div class="demo-bar-f" style="width:${(cnt/maxBg*100)}%"></div></div>
-      <div class="demo-n">${cnt}</div>
-    </div>`).join('') : '<div class="feed-empty">No data yet</div>';
-
-  // Feed — sorted by client_time (always present) since serverTimestamp can be null briefly offline
-  const feed = document.getElementById('feed-list');
-  const recent = [...allDocs].sort((a,b)=> new Date(b.client_time||0) - new Date(a.client_time||0)).slice(0,16);
-  feed.innerHTML = recent.length ? recent.map(d=>`
-    <div class="feed-item">✅ ${d.background||'Unknown'} · ${d.frequency||'—'} · sat ${d.sat_overall||'–'}/5</div>
-  `).join('') : '<div class="feed-empty">Waiting for responses...</div>';
-
-  document.getElementById('last-upd').textContent = 'Updated: '+new Date().toLocaleTimeString();
 }
 
-buildLikertCards();
-buildChoiceCards();
-buildSustainCard();
+function needsAnswer(q){
+  if(q.type==='text') return false; // optional questions
+  if(q.id==='missing_cuisine'||q.id==='open_feedback') return false;
+  if(q.type==='rank3') return (answers[q.id]||[]).length !== 3;
+  return answers[q.id]===undefined || (Array.isArray(answers[q.id]) && answers[q.id].length===0);
+}
 
-// ---- Firestore Realtime listener — fires instantly on every new/changed doc, no polling ----
-// IMPORTANT: this is read-only. There is no delete/reset call anywhere in this file,
-// so the dashboard can never wipe your collected responses.
-onSnapshot(collection(db, SURVEY_COLLECTION), (snapshot) => {
-  allDocs = snapshot.docs.map(d => d.data());
-  render();
-  document.getElementById('conn-dot').className='conn-dot live';
-  document.getElementById('conn-txt').textContent='Live via Firestore onSnapshot';
-}, (error) => {
-  console.error('Firestore listener error:', error);
-  document.getElementById('conn-dot').className='conn-dot down';
-  document.getElementById('conn-txt').textContent='Connection issue — retrying...';
-});
+function showOutOfScope(){
+  container.innerHTML = `
+    <div class="done-wrap">
+      <div class="done-icon">📍</div>
+      <div class="done-title">BTU Cottbus Connection Required</div>
+      <div class="done-sub">This survey covers the BTU Cottbus Mensa specifically. If you have no connection to Cottbus campus, your response unfortunately cannot be included. Thank you for your interest!</div>
+    </div>`;
+}
 
-// CSV export (read-only, does not affect Firestore data)
-window.exportCSV = function(){
-  if(!allDocs.length){ alert('No data to export yet.'); return; }
-  const cols = ['background','program','frequency','observed_rotation','sat_overall','sat_represent','sat_variety','sat_belonging','sustain_understanding','sustain_origin_link','pricing_perception','feedback_awareness','missing_cuisine','open_feedback','client_time'];
-  const rows = [cols.join(',')].concat(allDocs.map(d=>cols.map(c=>{
-    let v = d[c];
-    if(Array.isArray(v)) v = v.join(' | ');
-    v = v===undefined||v===null ? '' : String(v).replace(/"/g,'""');
-    return `"${v}"`;
-  }).join(',')));
-  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `mensa_survey_export_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
+async function submitSurvey(){
+  const nextBtn=document.getElementById('nextBtn');
+  if(nextBtn){ nextBtn.disabled=true; nextBtn.textContent='Submitting...'; }
+  try{
+    const byId = id => Q.find(q=>q.id===id);
+    const optAt = (id, i) => (i===undefined||i===null) ? '' : byId(id).opts[i];
+    const payload = {
+      background: optAt('background', answers.background),
+      program: optAt('program', answers.program),
+      frequency: optAt('frequency', answers.frequency),
+      observed_rotation: optAt('observed_rotation', answers.observed_rotation),
+      sat_overall: answers.sat_overall,
+      sat_represent: answers.sat_represent,
+      sat_variety: answers.sat_variety,
+      sat_belonging: answers.sat_belonging,
+      sustain_understanding: (answers.sustain_understanding||[]).map(i=>byId('sustain_understanding').opts[i]),
+      sustain_origin_link: optAt('sustain_origin_link', answers.sustain_origin_link),
+      pricing_perception: optAt('pricing_perception', answers.pricing_perception),
+      feedback_awareness: optAt('feedback_awareness', answers.feedback_awareness),
+      missing_cuisine: answers.missing_cuisine || '',
+      open_feedback: answers.open_feedback || '',
+      submitted_at: serverTimestamp(),
+      client_time: new Date().toISOString(),
+    };
+    await addDoc(collection(db, SURVEY_COLLECTION), payload);
+    container.innerHTML = `
+      <div class="done-wrap">
+        <div class="done-icon">✅</div>
+        <div class="done-title">Thank You!</div>
+        <div class="done-sub">Your anonymous response has been recorded. This helps Group 2's research on cultural representation and sustainability at the BTU Mensa.<br><br>Want to share a dish suggestion with friends too? Forward this link!</div>
+      </div>`;
+  }catch(err){
+    console.error(err);
+    if(nextBtn){ nextBtn.disabled=false; nextBtn.textContent='Submit ✓'; }
+    alert('Something went wrong submitting your response. Please check your connection and try again.');
+  }
+}
 
-// QR
-const qrs=document.createElement('script');
-qrs.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-qrs.onload=()=>{
-  const box=document.getElementById('qr-box');
-  new QRCode(box,{text:AURL,width:150,height:150,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
-};
-document.head.appendChild(qrs);
+render();
 
-addEventListener('keydown',e=>{
-  if(e.key==='f'||e.key==='F')
-    document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
-});
-
-// background particles
+// subtle animated bg
 const cv=document.getElementById('bg-canvas');
 const ctx=cv.getContext('2d');
 function resize(){cv.width=innerWidth;cv.height=innerHeight;}
 resize(); addEventListener('resize',resize);
-let particles=Array.from({length:40},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.12,vy:(Math.random()-.5)*.12}));
+let particles=Array.from({length:30},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15}));
 function loop(){
   ctx.clearRect(0,0,cv.width,cv.height);
   particles.forEach(p=>{
@@ -380,7 +333,7 @@ function loop(){
     if(p.x<0||p.x>innerWidth)p.vx*=-1;
     if(p.y<0||p.y>innerHeight)p.vy*=-1;
     ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7);
-    ctx.fillStyle='rgba(45,212,191,.2)'; ctx.fill();
+    ctx.fillStyle='rgba(45,212,191,.25)'; ctx.fill();
   });
   requestAnimationFrame(loop);
 }
